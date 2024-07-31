@@ -2,32 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+@keyframes roundandround {
+  to {
+    transform: rotateX(360deg);
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: #000000;
+}
+.scene {
+  width: 600px;
+  height: 600px;
+  margin: 0 auto;
+  perspective: 500px;
+  animation: rotate 15s infinite linear;
+}
+.wrapper {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg) translateZ(300px);
+  animation: rotateReverse 40s infinite linear;
+}
+.tunnel {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  animation: roundandround 50s infinite linear;
+}
+.tunnel .ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 6px;
+  border-style: dashed;
+  border-radius: 50%;
+  transform-origin: 50% 50%;
+  color: #ffffff;
+  transform: translateY(-200px);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@for $i from 1 through 72 {
+  .ring:nth-child(#{$i}) {
+    color: adjust-hue(#ffffff, $i * 5%);
+    transform: rotateX($i * 5deg) translateY(-200px);
   }
+}
+
+.image-container {
+  width: 40vw;
+  height: 40vh;
+  position: absolute;
+  transform-style: preserve-3d;
+  transition: all 0.5s ease;
+}
+
+.image-container-0 {
+  top: 95vh;
+  right: -7vw;
+  transform: rotateY(-20deg) translateZ(50px);
+}
+
+.image-container-1 {
+  top: 5vh;
+  right: 30vw;
+  transform: rotateY(-20deg) translateZ(50px);
+  z-index: 99;
+}
+
+.image-container-2 {
+  top: 5vh;
+  right: 10vw;
+  transform: rotateY(-25deg) translateZ(100px);
+  z-index: 99;
+}
+
+.image-container-3 {
+  top: 5vh;
+  right: -10vw;
+  transform: rotateY(-30deg) translateZ(150px);
+  z-index: 99;
+}
+
+.image-container-4 {
+  top: 50vh;
+  right: 30vw;
+  transform: rotateY(-20deg) translateZ(50px);
+  z-index: 99;
+}
+
+.image-container-5 {
+  top: 50vh;
+  right: 10vw;
+  transform: rotateY(-25deg) translateZ(100px);
+  z-index: 99;
+}
+
+.image-container-6 {
+  top: 50vh;
+  right: -10vw;
+  transform: rotateY(-30deg) translateZ(150px);
+  z-index: 99;
+}
+
+.image-container-7 {
+  top: 95vh;
+  right: 30vw;
+  transform: rotateY(-20deg) translateZ(50px);
+  z-index: 99;
+}
+
+.image-container-8 {
+  top: 95vh;
+  right: 10vw;
+  transform: rotateY(-25deg) translateZ(100px);
+  z-index: 99;
+}
+.image-container-9 {
+  top: 105vh;
+  right: 15vw;
+  transform: rotateY(-25deg) translateZ(100px);
+  z-index: 99;
+}
+
+.image-container:hover {
+  transform: rotateY(0deg) translateZ(0px) scale(1.1);
+  z-index: 10;
+  cursor: pointer;
 }
