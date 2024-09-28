@@ -1,57 +1,52 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+
+interface RingStyle {
+  color: string;
+  transform: string;
+}
 
 const Homes = () => {
   const [overlayScale, setOverlayScale] = useState(100);
   const [showWyndlabs, setShowWyndlabs] = useState(true);
+  const [ringStyles, setRingStyles] = useState<RingStyle[]>([]);
 
-  // Function to adjust hue
-  const adjustHue = () => {
-    let color = `hsl(0, 0%, 100%)`;
-    return color;
-  };
-
-  // Function to apply styles to each .ring element
-  const applyStyles = () => {
-    const styleSheet = document.styleSheets[0];
-
-    for (let i = 1; i <= 72; i++) {
-      let color = adjustHue();
-      let rotateX = i * 5;
-
-      let rule = `.ring:nth-child(${i}) {
-        color: ${color};
-        transform: rotateX(${rotateX}deg) translateY(-200px);
-      }`;
-
-      styleSheet.insertRule(rule, styleSheet.cssRules.length);
-    }
-  };
+  const generateRingStyles = useCallback((): RingStyle[] => {
+    return Array.from({ length: 72 }, (_, i) => ({
+      color: `hsl(0, 0%, 100%)`,
+      transform: `rotateX(${(i + 1) * 5}deg) translateY(-200px)`,
+    }));
+  }, []);
 
   useEffect(() => {
-    applyStyles();
+    setRingStyles(generateRingStyles());
 
-    // Start the overlay transition after a short delay
+    let animationFrameId: number;
+    const startTime = Date.now();
+    const duration = 1500; // 1.5 seconds
+
+    const animateOverlay = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      setOverlayScale(100 - progress * 100);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animateOverlay);
+      } else {
+        setShowWyndlabs(false);
+      }
+    };
+
     const timer = setTimeout(() => {
-      const transitionDuration = 1500; // 1.5 seconds
-      const intervalDuration = 20; // Update every 20ms
-      const totalSteps = transitionDuration / intervalDuration;
-      let currentStep = 0;
+      animationFrameId = requestAnimationFrame(animateOverlay);
+    }, 500);
 
-      const interval = setInterval(() => {
-        currentStep++;
-        setOverlayScale(100 - (currentStep / totalSteps) * 100);
-
-        if (currentStep >= totalSteps) {
-          clearInterval(interval);
-          setShowWyndlabs(false);
-        }
-      }, intervalDuration);
-    }, 500); // Start after 0.5 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [generateRingStyles]);
 
   return (
     <div className="bg-black relative overflow-hidden">
@@ -69,8 +64,8 @@ const Homes = () => {
       <div className="scene">
         <div className="wrapper flex w-full">
           <ul className="tunnel">
-            {Array.from({ length: 72 }, (_, index) => (
-              <li key={index} className="ring"></li>
+            {ringStyles.map((style, index) => (
+              <li key={index} className="ring" style={style}></li>
             ))}
           </ul>
         </div>

@@ -85,6 +85,25 @@ const ScrollingCards = () => {
       image: "/image-3.webp",
     },
   ];
+  // Create individual useTransform hooks for each card
+  const yValue0 = useTransform(scrollYProgress, [0, 1 / 3], [CARD_HEIGHT, 0]);
+  const yValue1 = useTransform(
+    scrollYProgress,
+    [1 / 3, 2 / 3],
+    [CARD_HEIGHT - OVERLAP_OFFSET, -OVERLAP_OFFSET]
+  );
+  const yValue2 = useTransform(
+    scrollYProgress,
+    [2 / 3, 1],
+    [CARD_HEIGHT - 2 * OVERLAP_OFFSET, -2 * OVERLAP_OFFSET]
+  );
+
+  // Create individual useSpring hooks for each card
+  const smoothY0 = useSpring(yValue0, { stiffness: 100, damping: 30 });
+  const smoothY1 = useSpring(yValue1, { stiffness: 100, damping: 30 });
+  const smoothY2 = useSpring(yValue2, { stiffness: 100, damping: 30 });
+
+  const smoothYValues = [smoothY0, smoothY1, smoothY2];
 
   useEffect(() => {
     setContainerHeight(
@@ -105,7 +124,6 @@ const ScrollingCards = () => {
 
     return () => unsubscribe();
   }, [scrollYProgress, cardContents.length]);
-
   return (
     <div
       ref={containerRef}
@@ -126,28 +144,14 @@ const ScrollingCards = () => {
                 }px`,
               }}
             >
-              {cardContents.map((content, index) => {
-                const y = useTransform(
-                  scrollYProgress,
-                  [
-                    index / cardContents.length,
-                    (index + 1) / cardContents.length,
-                  ],
-                  [
-                    CARD_HEIGHT - index * OVERLAP_OFFSET,
-                    -index * OVERLAP_OFFSET,
-                  ]
-                );
-                const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-                return (
-                  <Card
-                    key={index}
-                    content={content}
-                    index={index}
-                    y={smoothY}
-                  />
-                );
-              })}
+              {cardContents.map((content, index) => (
+                <Card
+                  key={index}
+                  content={content}
+                  index={index}
+                  y={smoothYValues[index]}
+                />
+              ))}
             </div>
           </div>
         </div>
